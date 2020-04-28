@@ -6,3 +6,13 @@
 $ cd backend
 $ stack run
 ```
+
+## Run the frontend
+
+Run the backend first.
+
+```shell-session
+$ cd frontend
+$ make serve &
+$ make open  # to open a page of the frontend
+```
