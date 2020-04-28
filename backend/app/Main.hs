@@ -1,6 +1,8 @@
 module Main where
 
-import Lib
+import ChatUxExample.Main (app)
+import RIO
+import Tonatona (run)
 
 main :: IO ()
-main = someFunc
+main = run app
