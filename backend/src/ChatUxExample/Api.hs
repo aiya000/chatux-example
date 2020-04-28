@@ -9,6 +9,9 @@ import Data.String.Here (i)
 import Deriving.Aeson
 import RIO hiding (logError, logDebug, logInfo, Handler, to)
 import Servant
+import Text.Megaparsec (parseMaybe)
+import qualified Text.Megaparsec.Char as P
+import qualified Text.Megaparsec.Char.Lexer as P
 
 app :: Config -> Application
 app x = serve api $ hoistServer api (runRIO x) server
@@ -61,8 +64,25 @@ echoText maybeText Nothing = do
 echoText Nothing _ =
   throwString "a text is required as a URL query, but it doesn't specify."
 echoText (Just text) (Just origin)
-  | isKnownOrigin origin = pure . ResponseSuccess $ Result [Replying "text" text]
-  | otherwise = pure $ ResponseFailure [i|An unknown origin '${origin}' is rejected.|]
+  | isKnownOrigin origin = do
+      logDebug [i|A request from an origin ${origin} is accepted.|]
+      pure . ResponseSuccess $ Result [Replying "text" text]
+  | otherwise = do
+      logDebug [i|A request from an unknown origin ${origin} is rejected.|]
+      pure $ ResponseFailure [i|An unknown origin '${origin}' is rejected.|]
   where
-    isKnownOrigin "http://localhost" = True
-    isKnownOrigin _ = False
+    isKnownOrigin :: String -> Bool
+    isKnownOrigin origin' = isJust $ flip (parseMaybe @Void @String) origin' do
+      _ <- P.string "http://" <|> P.string "https://"
+      _ <- knownDomains
+      _ <- optional port
+      pure ()
+
+    knownDomains =
+      P.string "localhost" <|>
+      P.string "127.0.0.1"
+
+    port = do
+      _ <- P.char ':'
+      _ <- P.decimal @_ @_ @_ @Int
+      pure ()
