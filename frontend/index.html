@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>chatux example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+
+<body>
+  <div>
+      <h1>chatux example</h1>
+  </div>
+</body>
+
+<script src="https://riversun.github.io/chatux/chatux.min.js"></script>
+<script>
+    const chatux = new ChatUx();
+    const opt = {
+        api: {
+            endpoint: 'http://localhost:25252/chat',
+            method: 'GET',
+            dataType: 'json'
+        },
+        window: {
+            title: 'My chat',
+            infoUrl: 'https://github.com/riversun/chatux'
+        }
+    };
+    chatux.init(opt);
+    chatux.start(true);
+</script>
+</html>
